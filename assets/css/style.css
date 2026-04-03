@@ -1,0 +1,277 @@
+/* GOOGLE FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@400;700&display=swap');
+
+/* RESET */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  }
+
+/* GLOBAL STYLE */
+body {
+font-family: 'Poppins', sans-serif;
+color: #ffffff;
+background: #0a0a0f;
+overflow-x: hidden;
+}
+
+/*******************
+ANIMATED BACKGROUND
+********************/
+.bg-animation {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: radial-gradient(circle, #1b1b28, #0a0a0f);
+z-index: -1;
+}
+
+.bg-animation::before {
+content: "";
+position: absolute;
+width: 500px;
+height: 500px;
+background: #00eaff33;
+filter: blur(150px);
+animation: float 10s infinite alternate ease-in-out;
+}
+
+@keyframes float {
+0% { transform: translate(0,0); }
+100% { transform: translate(200px, -200px); }
+}
+
+/*******************
+HEADER
+********************/
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 20px 40px;
+background: #11121a;
+position: sticky;
+top: 0;
+z-index: 10;
+border-bottom: 1px solid #1f1f28;
+}
+
+.logo {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.8rem;
+color: #00eaff;
+}
+
+/* Navbar */
+nav {
+display: flex;
+align-items: center;
+}
+
+nav a {
+color: #ffffff;
+margin-left: 20px;
+text-decoration: none;
+font-weight: 500;
+transition: 0.3s;
+}
+
+nav a:hover {
+color: #00eaff;
+}
+
+/*******************
+HERO
+********************/
+.hero {
+height: 85vh;
+display: flex;
+justify-content: center;
+align-items: center;
+text-align: center;
+padding: 40px;
+}
+
+.hero-content h1 {
+font-size: 3.4rem;
+font-family: 'Orbitron', sans-serif;
+}
+
+.hero-content span {
+color: #00eaff;
+}
+
+.tagline {
+font-size: 1.2rem;
+margin-top: 10px;
+color: #cccccc;
+}
+
+/*******************
+SOCIAL ICONS
+********************/
+.social-icons {
+margin-top: 25px;
+}
+
+.social-icons i {
+font-size: 2rem;
+margin: 0 12px;
+color: #00eaff;
+cursor: pointer;
+transition: 0.3s;
+}
+
+.social-icons i:hover {
+color: #ffffff;
+transform: scale(1.2);
+}
+
+/*******************
+SECTIONS
+********************/
+.section {
+padding: 60px 40px;
+max-width: 900px;
+margin: auto;
+text-align: center;
+}
+
+.section h2 {
+font-size: 2.4rem;
+margin-bottom: 20px;
+font-family: 'Orbitron', sans-serif;
+}
+
+/*******************
+ABOUT
+********************/
+.about-container {
+display: flex;
+align-items: center;
+gap: 30px;
+justify-content: center;
+flex-wrap: wrap;
+}
+
+.about-img {
+width: 200px;
+height: 200px;
+border-radius: 50%;
+object-fit: cover;
+border: 4px solid #00eaff;
+box-shadow: 0 0 25px #00eaff44;
+animation: glow 3s infinite alternate;
+}
+
+@keyframes glow {
+from {
+box-shadow: 0 0 10px #00eaff;
+}
+to {
+box-shadow: 0 0 30px #00eaff;
+}
+}
+
+/*******************
+SKILLS
+********************/
+.skills-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 20px;
+}
+
+.skill-card {
+background: #13141e;
+padding: 18px;
+border-radius: 10px;
+border: 1px solid #252634;
+font-weight: 600;
+transition: 0.3s;
+}
+
+.skill-card:hover {
+border-color: #00eaff;
+}
+
+/*******************
+PROJECTS
+********************/
+.project-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+gap: 25px;
+}
+
+.project-card {
+background: #13141e;
+padding: 25px;
+border-radius: 15px;
+border: 1px solid #28293a;
+transition: 0.3s;
+}
+
+.project-card:hover {
+border-color: #00eaff;
+}
+
+/*******************
+FOOTER
+********************/
+footer {
+text-align: center;
+padding: 20px;
+background: #11121a;
+margin-top: 30px;
+}
+
+/*******************
+MOBILE NAVBAR
+********************/
+
+.menu-toggle {
+    display: none;
+    font-size: 2rem;
+    color: #00eaff;
+    cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    nav {
+        display: none;
+        position: absolute;
+        top: 70px;
+        right: 0;
+        background: #11121a;
+        width: 200px;
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        border-left: 1px solid #1f1f28;
+    }
+
+    nav.active {
+        display: flex;
+    }
+
+    nav a {
+        display: block;
+        margin: 15px 0;
+        padding: 10px;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    header {
+        position: relative;
+    }
+}
