@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="text-3xl font-bold mb-6">Shop Jerseys</h2>
+
+<div class="grid grid-cols-3 gap-6">
+
+{% for product in products %}
+
+<div class="bg-white p-4 rounded shadow">
+
+<img src="{{ url_for('static', filename='images/' + product.image) }}">
+
+<h3 class="text-xl mt-3">{{ product.name }}</h3>
+
+<p class="text-orange-500 font-bold">₹{{ product.price }}</p>
+
+<a href="/checkout/{{ product.name }}/{{ product.price }}"
+class="bg-black text-white px-4 py-2 mt-3 inline-block rounded">
+Buy Now
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

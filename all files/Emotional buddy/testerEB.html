@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotional Buddy</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #ff007f, #8a2be2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fffa65;
+      text-align: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px #fffa65;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 0 0 12px #fffa65;
+    }
+
+    input[type="text"] {
+      width: 90%;
+      padding: 15px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 30px;
+      outline: none;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px #fffa65;
+    }
+
+    button {
+      padding: 15px 40px;
+      font-size: 1.2em;
+      background-color: #fffa65;
+      color: #8a2be2;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 12px #fffa65;
+    }
+
+    button:hover {
+      background-color: #fff96d;
+      transform: scale(1.05);
+    }
+
+    #result {
+      margin-top: 30px;
+      font-size: 1.3em;
+      text-shadow: 0 0 8px #fffa65;
+      min-height: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🤖 Emotional Buddy</h1>
+    <input type="text" id="comment" placeholder="Type your feelings..." />
+    <br>
+    <button onclick="analyzeEmotion()">Analyze Emotion</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Fake response for now – replace with backend fetch later
+    function analyzeEmotion() {
+      const comment = document.getElementById("comment").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (comment === "") {
+        resultDiv.innerHTML = "⚠️ Please type something!";
+        return;
+      }
+
+      // Demo output (to be replaced  with fetch() to your backend later)
+      resultDiv.innerHTML = `
+        <p>💡 Detected Emotion: <strong>Happy</strong></p>
+        <p>📊 Accuracy: <strong>92.5%</strong></p>
+      `;
+    }
+  </script>
+
+</body>
+</html>

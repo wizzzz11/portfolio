@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGROBOAT | 12 Language Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { 
+      --primary: #22c55e; --bg: #020617; --card: #0f172a; --text: #f3f4f6; 
+      --danger: #ef4444; --sidebar-bg: #010409; --input-bg: #1e293b;
+    }
+    body.light-mode {
+      --bg: #f8fafc; --card: #ffffff; --text: #1e293b; 
+      --sidebar-bg: #f1f5f9; --input-bg: #e2e8f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    body { height: 100vh; background: var(--bg); display: flex; flex-direction: column; color: var(--text); overflow: hidden; }
+
+    #connectivity { background: #15803d; color: white; text-align: center; font-size: 0.75rem; padding: 6px; font-weight: 600; z-index: 100; }
+    #connectivity.offline { background: var(--danger); }
+
+    .main-layout { display: flex; flex: 1; overflow: hidden; }
+    .sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid rgba(128,128,128,0.2); display: flex; flex-direction: column; }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(128,128,128,0.2); }
+    .new-chat-btn { width: 100%; padding: 12px; border: 1px dashed var(--primary); color: var(--primary); background: transparent; border-radius: 10px; cursor: pointer; font-weight: 600; margin-bottom: 10px; }
+    .history-list { flex: 1; overflow-y: auto; padding: 10px; }
+    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; border-radius: 8px; background: rgba(128,128,128,0.1); cursor: pointer; font-size: 0.85rem; }
+    .del-btn { color: var(--danger); font-weight: bold; padding: 0 5px; cursor: pointer; }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; }
+    .chat-header { background: linear-gradient(135deg, var(--primary), #15803d); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .header-btns { display: flex; gap: 15px; align-items: center; }
+    .theme-toggle { cursor: pointer; font-size: 1.2rem; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 8px; }
+    #langSelect { padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); outline: none; cursor: pointer; font-size: 0.8rem; }
+
+    #status { font-size: 0.7rem; font-weight: 600; color: var(--primary); text-align: center; padding: 5px; opacity: 0; }
+    #status.active { opacity: 1; }
+
+    .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    .message { max-width: 80%; padding: 12px 18px; border-radius: 18px; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .bot { background: var(--card); border: 1px solid rgba(128,128,128,0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
+    .user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .speaker-icon { margin-left: 8px; cursor: pointer; }
+    .offline-tag { font-size: 0.6rem; opacity: 0.7; display: block; margin-top: 4px; font-style: italic; }
+
+    .chat-input-area { padding: 20px; background: var(--card); border-top: 1px solid rgba(128,128,128,0.1); }
+    .input-wrapper { max-width: 800px; margin: 0 auto; display: flex; gap: 12px; align-items: center; }
+    input { flex: 1; padding: 14px; border-radius: 12px; border: none; background: var(--input-bg); color: var(--text); outline: none; }
+    #micBtn { width: 50px; height: 50px; border-radius: 50%; border: none; background: #334155; color: white; cursor: pointer; font-size: 1.4rem; transition: 0.3s; }
+    #micBtn.recording { background: var(--danger); animation: pulse-mic 1.5s infinite; }
+    @keyframes pulse-mic { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    .send-btn { background: var(--primary); color: white; padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; }
+    @media (max-width: 768px) { .sidebar { display: none; } }
+  </style>
+</head>
+<body>
+
+<div id="connectivity">📡 CONNECTED TO FARM NETWORK</div>
+
+<div class="main-layout">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <button class="new-chat-btn" onclick="startNewChat()">+ New Discussion</button>
+      <button class="new-chat-btn" style="border-style: solid;" onclick="downloadHistory()">📥 Save Diary</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <div class="main-content">
+    <div class="chat-header">
+      <h2>🌱 AGROBOAT</h2>
+      <div class="header-btns">
+        <div class="theme-toggle" onclick="toggleTheme()" id="themeIcon">🌙</div>
+        <select id="langSelect" onchange="updateGreeting()">
+          <option value="en-IN">English</option>
+          <option value="hi-IN">Hindi (हिंदी)</option>
+          <option value="bn-IN">Bengali (বাংলা)</option>
+          <option value="te-IN">Telugu (తెలుగు)</option>
+          <option value="mr-IN">Marathi (मराठी)</option>
+          <option value="ta-IN">Tamil (தமிழ்)</option>
+          <option value="gu-IN">Gujarati (ગુજરાતી)</option>
+          <option value="kn-IN">Kannada (ಕನ್ನಡ)</option>
+          <option value="ml-IN">Malayalam (മലയാളം)</option>
+          <option value="pa-IN">Punjabi (ਪੰਜਾਬੀ)</option>
+          <option value="or-IN">Odia (ଓଡ଼ିଆ)</option>
+          <option value="ur-IN">Urdu (اردو)</option>
+        </select>
+      </div>
+    </div>
+    <div id="status">Listening...</div>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <button id="micBtn">🎤</button>
+        <input type="text" id="userInput" placeholder="Ask AGROBOAT (Works Offline)..." />
+        <button onclick="sendMessage()" class="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chatBox = document.getElementById("chatBox");
+  const langSelect = document.getElementById("langSelect");
+  const userInput = document.getElementById("userInput");
+  const historyList = document.getElementById("historyList");
+  const statusIndicator = document.getElementById("status");
+  const micBtn = document.getElementById("micBtn");
+  const connectivity = document.getElementById("connectivity");
+
+  let currentChatId = Date.now();
+  let chats = JSON.parse(localStorage.getItem('agro_v10_history')) || {};
+  let isOnline = navigator.onLine;
+
+  const langData = {
+    'en-IN': { greet: "Welcome to AGROBOAT. I am your farming assistant. How can I help you grow today?", reply: "Got it: ", statusMic: "Listening...", statusGen: "Thinking..." },
+    'hi-IN': { greet: "एग्रोबोट में आपका स्वागत है। मैं आपका कृषि सहायक हूँ। आज मैं आपकी क्या सहायता कर सकता हूँ?", reply: "ठीक है: ", statusMic: "सुन रहा हूँ...", statusGen: "सोच रहा हूँ..." },
+    'bn-IN': { greet: "এগ্রোবোটে স্বাগতম। আমি আপনার কৃষি সহকারী। আজ আমি আপনাকে কীভাবে সাহায্য করতে পারি?", reply: "বুঝতে পেরেছি: ", statusMic: "শুনছি...", statusGen: "ভাবছি..." },
+    'te-IN': { greet: "అగ్రోబోట్‌కు స్వాగతం. నేను మీ వ్యవసాయ సహాయకుడిని. ఈరోజు నేను మీకు ఎలా సహాయపడగలను?", reply: "అర్థమైంది: ", statusMic: "వింటున్నాను...", statusGen: "ఆలోచిస్తున్నాను..." },
+    'mr-IN': { greet: "अॅग्रोबोटमध्ये आपले स्वागत आहे. मी तुमचा शेती सहाय्यक आहे. मी तुम्हाला कशी मदत करू शकतो?", reply: "समजले: ", statusMic: "ऐकत आहे...", statusGen: "विचार करत आहे..." },
+    'ta-IN': { greet: "அக்ரோபோட்டிற்கு வரவேற்கிறோம். நான் உங்கள் விவசாய உதவியாளர். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?", reply: "புரிந்து கொண்டது: ", statusMic: "கவனித்துக் கொண்டிருக்கிறேன்...", statusGen: "யோசிக்கிறேன்..." },
+    'gu-IN': { greet: "એગ્રોબોટમાં તમારું સ્વાગત છે. હું તમારો કૃષિ સહાયક છું. આજે હું તમને કેવી રીતે મદદ કરી શકું?", reply: "સમજાઈ ગયું: ", statusMic: "સાંભળી રહ્યો છું...", statusGen: "વિચારી રહ્યો છું..." },
+    'kn-IN': { greet: "ಅಗ್ರೋಬೋಟ್‌ಗೆ ಸುಸ್ವಾಗತ. ನಾನು ನಿಮ್ಮ ಕೃಷಿ ಸಹಾಯಕ. ಇಂದು ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?", reply: "ತಿಳಿದಿದೆ: ", statusMic: "ಕೇಳಿಸಿಕೊಳ್ಳುತ್ತಿದ್ದೇನೆ...", statusGen: "ಯೋಚಿಸುತ್ತಿದ್ದೇನೆ..." },
+    'ml-IN': { greet: "അഗ്രോബോട്ടിലേക്ക് സ്വാഗതം. ഞാൻ നിങ്ങളുടെ കൃഷി സഹായിയാണ്. ഇന്ന് എനിക്ക് എങ്ങനെ സഹായിക്കാനാകും?", reply: "മനസ്സിലായി: ", statusMic: "കേൾക്കുന്നു...", statusGen: "ചിന്തിക്കുന്നു..." },
+    'pa-IN': { greet: "ਐਗਰੋਬੋਟ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ। ਮੈਂ ਤੁਹਾਡਾ ਖੇਤੀਬਾੜੀ ਸਹਾਇਕ ਹਾਂ। ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?", reply: "ਸਮਝ ਗਿਆ: ", statusMic: "ਸੁਣ ਰਿਹਾ ਹਾਂ...", statusGen: "ਸੋਚ ਰਿਹਾ ਹਾਂ..." },
+    'or-IN': { greet: "ଆଗ୍ରୋବୋଟକୁ ସ୍ୱାଗତ | ମୁଁ ଆପଣଙ୍କର କୃଷି ସହାୟକ | ଆଜି ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?", reply: "ବୁଝିଗଲି: ", statusMic: "ଶୁଣୁଛି...", statusGen: "ଭାବୁଛି..." },
+    'ur-IN': { greet: "ایگرو بوٹ میں خوش آمدید۔ میں آپ کا زراعتی مددگار ہوں۔ آج میں آپ کی کیا مدد کر سکتا ہوں؟", reply: "سمجھ گیا: ", statusMic: "سن رہا ہوں...", statusGen: "سوچ رہا ہوں..." }
+  };
+
+  function updateOnlineStatus() {
+    isOnline = navigator.onLine;
+    connectivity.innerText = isOnline ? "📡 CONNECTED TO FARM NETWORK" : "⚠️ OFFLINE MODE: SAVING LOCALLY";
+    connectivity.className = isOnline ? "" : "offline";
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+
+  function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    document.getElementById('themeIcon').innerText = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+  }
+
+  function setStatus(type, isActive) {
+    const l = langSelect.value;
+    const langObj = langData[l] || langData['en-IN'];
+    if (isActive) {
+      statusIndicator.innerText = type === 'mic' ? langObj.statusMic : langObj.statusGen;
+      statusIndicator.classList.add('active');
+    } else {
+      statusIndicator.classList.remove('active');
+    }
+  }
+
+  function startNewChat() { chatBox.innerHTML = ""; currentChatId = Date.now(); updateGreeting(); }
+
+  function updateGreeting() {
+    chatBox.innerHTML = "";
+    const l = langSelect.value;
+    const g = langData[l]?.greet || langData['en-IN'].greet;
+    addMsg(g, 'bot', l, false);
+    if(isOnline) speak(g, l);
+  }
+
+  function speak(text, lang) {
+    if(!isOnline) return; 
+    window.speechSynthesis.cancel();
+    const ut = new SpeechSynthesisUtterance(text);
+    ut.lang = lang;
+    window.speechSynthesis.speak(ut);
+  }
+
+  function addMsg(txt, sender, lang, shouldSave = true) {
+    const div = document.createElement("div");
+    div.className = `message ${sender}`;
+    let html = txt;
+    if(!isOnline && sender === 'user') html += `<span class="offline-tag">Saved to diary</span>`;
+    div.innerHTML = html;
+    if (sender === 'bot') {
+      const s = document.createElement("span");
+      s.innerHTML = " 🔊"; s.className = "speaker-icon";
+      s.onclick = () => speak(txt, lang);
+      div.appendChild(s);
+    }
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    if(shouldSave) saveToStorage(txt, sender);
+  }
+
+  function saveToStorage(txt, sender) {
+    if (!chats[currentChatId]) chats[currentChatId] = { title: txt.substring(0, 25) + "...", messages: [] };
+    chats[currentChatId].messages.push({ txt, sender });
+    localStorage.setItem('agro_v10_history', JSON.stringify(chats));
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = "";
+    Object.keys(chats).reverse().forEach(id => {
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.onclick = () => loadChat(id);
+      item.innerHTML = `<span>${chats[id].title}</span><div class="del-btn" onclick="deleteChat('${id}', event)">×</div>`;
+      historyList.appendChild(item);
+    });
+  }
+
+  function loadChat(id) {
+    currentChatId = id; chatBox.innerHTML = "";
+    chats[id].messages.forEach(m => addMsg(m.txt, m.sender, langSelect.value, false));
+  }
+
+  function deleteChat(id, e) {
+    e.stopPropagation(); delete chats[id];
+    localStorage.setItem('agro_v10_history', JSON.stringify(chats));
+    renderHistory();
+    if (currentChatId == id) startNewChat();
+  }
+
+  function downloadHistory() {
+    let content = "AGROBOAT DIARY\n\n";
+    Object.values(chats).forEach(chat => {
+      content += `[${chat.title}]\n`;
+      chat.messages.forEach(m => content += `${m.sender.toUpperCase()}: ${m.txt}\n`);
+      content += "\n";
+    });
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'farming_notes.txt'; a.click();
+  }
+
+  function sendMessage() {
+    const txt = userInput.value.trim();
+    const l = langSelect.value;
+    if (!txt) return;
+    addMsg(txt, 'user', l);
+    userInput.value = "";
+    setStatus('gen', true);
+    setTimeout(() => {
+      setStatus('gen', false);
+      const reply = isOnline ? (langData[l]?.reply || "") + txt : "Offline: Note saved in farm diary.";
+      addMsg(reply, 'bot', l);
+      if(isOnline) speak(reply, l);
+    }, 1000);
+  }
+
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRec) {
+    const rec = new SpeechRec();
+    micBtn.onclick = () => { rec.lang = langSelect.value; rec.start(); micBtn.classList.add("recording"); setStatus('mic', true); };
+    rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; sendMessage(); };
+    rec.onend = () => { micBtn.classList.remove("recording"); setStatus('mic', false); };
+  }
+
+  updateOnlineStatus(); renderHistory();
+  if(!chatBox.children.length) updateGreeting();
+  userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+</script>
+</body>
+</html>
